@@ -27,9 +27,9 @@ import org.hibernate.validator.constraints.Range;
  * 
  */
 
-@Entity
+//@Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-//@MappedSuperclass
+@MappedSuperclass
 public class BankAccount {
 	
 //	@Min(value = 0 , message = "Value should be greater than 0")

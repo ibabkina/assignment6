@@ -4,6 +4,9 @@ package com.meritamerica.assignment6.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 /**
  * This program creates a savings account for a client.
  * 
@@ -11,6 +14,8 @@ import java.text.SimpleDateFormat;
  * 
  */
 
+@Entity
+@Table(name = "savings_accounts")
 public class SavingsAccount extends BankAccount {
 	
 //	private double interestRate = 0.01;

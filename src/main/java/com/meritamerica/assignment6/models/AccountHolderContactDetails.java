@@ -21,33 +21,35 @@ public class AccountHolderContactDetails {
 	@GeneratedValue(strategy=GenerationType.AUTO) //Generates automatically and can be omitted
 	private long id;
 	
-	@NotBlank
+//	@NotBlank
 	private String street;
 	
-	@NotBlank
+//	@NotBlank
 	private String city;
 	
-	@NotBlank
+//	@NotBlank
 	private String state;
 	
-	@NotBlank
+//	@NotBlank
 	private String zip;
 	
-	@NotBlank @Email 
+//	@NotBlank @Email 
 	private String email;
 	
-	@NotBlank @Digits(integer=10, fraction=0)
+//	@NotBlank @Digits(integer=10, fraction=0)
 	private String phone;
 	
 	@OneToOne
-	@JoinColumn(name = "account_holder_id", referencedColumnName = "id", nullable = false)
+	@JoinColumn(name = "account_holder_id", referencedColumnName = "id") 
+	private AccountHolder accountHolder;
+	//, nullable = false
 //	@JoinColumn is used to configure the name of the column in the 
 //	account_holder_contact_details table that maps to the primary key in the 
 //	account_holders table. If we don't provide a name, Hibernate will follow some rules to select 
 //	a default one. 
 //	referencedColumnName is an id in AccountHolder class
 //	@JsonIgnore  //used to ignore the logical property used in serialization and deserialization
-	private AccountHolder accountHolder;
+	
 
 	/**
 	 * Default constructor 
@@ -92,7 +94,7 @@ public class AccountHolderContactDetails {
 
 	public void setPhone(String phone) { this.phone = phone; }
 	
-public AccountHolder getAccountHolder() { return accountHolder; }
+	public AccountHolder getAccountHolder() { return accountHolder; }
 	
 	public void setAccountHolder(AccountHolder accountHolder) { this.accountHolder = accountHolder; }
 

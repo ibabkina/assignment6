@@ -48,10 +48,11 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	
 //	@NotBlank
 	@OneToOne(cascade = CascadeType.ALL, mappedBy = "accountHolder")
+	private AccountHolderContactDetails accountHolderContactDetails;
 //	mappedBy designates the property/field in the entity that is the owner of the relationship.
 //	There no @JoinColumn annotation here. It's only needed on the owning side of the foreign key 
 //	relationship. Whoever owns the foreign key column gets the @JoinColumn annotation.
-	private AccountHolderContactDetails accountHolderContactDetails;
+
 	
 	@NotBlank
 	private String ssn; //Social Security Number
@@ -63,8 +64,14 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	@OrderColumn (name="chAcc_array_index")
 	private CheckingAccount[] checkingAccounts = new CheckingAccount[0]; 
 	
-	
+	@OneToMany(mappedBy="accountHolder", 
+			cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
+	@OrderColumn (name="svgAcc_array_index")
 	private SavingsAccount[] savingsAccounts = new SavingsAccount[0];
+	
+//	@OneToMany(mappedBy="accountHolder", 
+//			cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
+//	@OrderColumn (name="cdAcc_array_index")
 	private CDAccount[] cdAccounts = new CDAccount[0]; 
 	private static final double MAX_TRANSACTION_AMOUNT = 1000;
 
@@ -160,6 +167,14 @@ public class AccountHolder implements Comparable<AccountHolder> {
 		this.ssn = ssn; 
 	}
 	
+	public AccountHolderContactDetails getAccountHolderContactDetails() {
+		return accountHolderContactDetails;
+	}
+
+	public void setAccountHolderContactDetails(AccountHolderContactDetails accountHolderContactDetails) {
+		this.accountHolderContactDetails = accountHolderContactDetails;
+	}
+	
 //	public AccountHolderContactDetails addContactDetails(String email, String phoneNo, String address) {
 //		AccountHolderContactDetails contactDetails = new AccountHolderContactDetails(email, phoneNo, address);
 //		return contactDetails;
@@ -174,7 +189,7 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	public CheckingAccount addCheckingAccount(double openingBalance) {
 		return addCheckingAccount(new CheckingAccount(openingBalance)); 
 	}
-	
+
 	/**
 	 * @param checkingAccount
 	 * @return the CheckingAccount
@@ -372,9 +387,17 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	}
 	
 	public String writeToString() {
-		return this.getFirstName() + "," 
+		return  this.getId() + "," 
+				+ this.getFirstName() + "," 
 				+ this.getMiddleName() + "," 
 				+ this.getLastName() + "," 
-				+ this.getSSN(); 
+				+ this.getSSN() + "," 
+				+ this.accountHolderContactDetails.getId() + "," 
+				+ this.accountHolderContactDetails.getStreet() + "," 
+				+ this.accountHolderContactDetails.getCity() + "," 
+				+ this.accountHolderContactDetails.getState() + "," 
+				+ this.accountHolderContactDetails.getZip() + "," 
+				+ this.accountHolderContactDetails.getEmail() + "," 
+				+ this.accountHolderContactDetails.getPhone();			
 	}
 }

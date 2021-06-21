@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.Positive;
 
 /**
@@ -14,6 +16,8 @@ import javax.validation.constraints.Positive;
  * 
  */
 
+//@Entity
+//@Table(name = "cd_accounts")
 public class CDAccount extends BankAccount{
 	
 	private int term;

@@ -94,7 +94,8 @@ public class AccountHolderController {
 	public CheckingAccount addCheckingAcc(@PathVariable long customerId, 
 			@RequestBody @Valid CheckingAccount checkingAccount) 
 			throws NotFoundException, NegativeAmountException, ExceedsCombinedBalanceLimitException	{
-		AccountHolder accountHolder = this.getAccountHolderById(customerId);
+//		AccountHolder accountHolder = this.getAccountHolderById(customerId);
+		AccountHolder accountHolder = accHolderRepository.findById(customerId);
 		if(checkingAccount.getBalance() < 0) { throw new NegativeAmountException("Balance can't be negative"); }
 		log.info(checkingAccount.toString());
 		if(accountHolder.getCombinedBalance() + checkingAccount.getBalance() > 250000) {
@@ -102,6 +103,7 @@ public class AccountHolderController {
 			throw new ExceedsCombinedBalanceLimitException("Combined Balance can't exceed $250K");
 		}				
 		accountHolder.addCheckingAccount(checkingAccount); 
+		checkingAccountRepository.save(checkingAccount);
 		return checkingAccount;
 		
 	}
