@@ -19,20 +19,25 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.meritamerica.assignment6.MeritAmericaBankApp;
+import com.meritamerica.assignment6.exceptions.DataMissingException;
 import com.meritamerica.assignment6.exceptions.ExceedsCombinedBalanceLimitException;
 import com.meritamerica.assignment6.exceptions.ExceedsFraudSuspicionLimitException;
 import com.meritamerica.assignment6.exceptions.NegativeAmountException;
 //import com.meritamerica.assignment5.exceptions.NoSuchResourceFoundException;
 import com.meritamerica.assignment6.exceptions.NotFoundException;
 import com.meritamerica.assignment6.models.AccountHolder;
+import com.meritamerica.assignment6.models.AccountHolderContactDetails;
 import com.meritamerica.assignment6.models.CDAccount;
 import com.meritamerica.assignment6.models.CDOffering;
 import com.meritamerica.assignment6.models.CheckingAccount;
 import com.meritamerica.assignment6.models.MeritBank;
 import com.meritamerica.assignment6.models.SavingsAccount;
 import com.meritamerica.assignment6.repos.AccountHolderRepository;
-import com.meritamerica.assignment6.repos.BankAccountRepository;
+import com.meritamerica.assignment6.repos.CDAccountRepository;
+import com.meritamerica.assignment6.repos.CDOfferingRepository;
+//import com.meritamerica.assignment6.repos.BankAccountRepository;
 import com.meritamerica.assignment6.repos.CheckingAccountRepository;
+import com.meritamerica.assignment6.repos.SavingsAccountRepository;
 
 @RestController
 public class AccountHolderController {
@@ -41,41 +46,31 @@ public class AccountHolderController {
 	
 	
 	@Autowired AccountHolderRepository accHolderRepository;
-	@Autowired BankAccountRepository bankAccountRepository;
 	@Autowired CheckingAccountRepository checkingAccountRepository;
-	
-//	log.debug("Is rollbackOnly: " + TransactionAspectSupport.currentTransactionStatus().isRollbackOnly());
-	
-//	@GetMapping(value = "/accountHolders")
-//	@ResponseStatus(HttpStatus.OK)
-//	public List<AccountHolder> getAccountHolders(){
-//		
-//		return Arrays.asList(MeritBank.getAccountHolders());
-//	}
+	@Autowired SavingsAccountRepository savingsAccountRepository;
+	@Autowired CDAccountRepository cdAccountRepository;
+	@Autowired CDOfferingRepository cdOfferingRepository;
 	
 	@PostMapping(value = "/accountHolders")
 	@ResponseStatus(HttpStatus.CREATED)
-	public AccountHolder addAccountHolder(@RequestBody @Valid AccountHolder accountHolder) {
-		AccountHolder accHolder = accountHolder;
-		System.out.println("accountHolder = " + accountHolder.toString());
-//		MeritBank.addAccountHolder(accountHolder);
+	public AccountHolder addAccountHolder(@RequestBody @Valid AccountHolder accountHolder) 
+			throws DataMissingException {
+		
+//		accountHolder.setAccountHolderContactDetails(accountHolder.getAccountHolderContactDetails());
+//		if(accountHolder.getAccountHolderContactDetails() == null) { 
+//			throw new DataMissingException("Account Holder Contact Details are mandatory"); }
+		accHolderRepository.save(accountHolder); // id only generates when saved to DB
+		long accHolderId = accountHolder.getId();
+		accountHolder.getAccountHolderContactDetails().setAccountHolderId(accHolderId);
+		MeritBank.addAccountHolder(accountHolder);
 		accHolderRepository.save(accountHolder); 
 		return accountHolder;
 	}
-	
-//	@GetMapping(value = "/accountHolders")
-//	@ResponseStatus(HttpStatus.OK) //Redundant but can do if your team prefers
-//	public AccountHolder[] getAccountHolders(){
-//		
-////		return MeritBank.getAccountHolders();
-//		return accHolderRepository.findAll();
-//	}
 	
 	@GetMapping(value = "/accountHolders")
 	@ResponseStatus(HttpStatus.OK) //Redundant but can do if your team prefers
 	public List<AccountHolder> getAccountHolders(){
 		
-//		return MeritBank.getAccountHolders();
 		return accHolderRepository.findAll();
 	}
 	
@@ -84,8 +79,8 @@ public class AccountHolderController {
 	public AccountHolder getAccountHolderById(@PathVariable long customerId) 
 			throws NotFoundException {
 		
-		AccountHolder accountHolder = MeritBank.getAccountHolder(customerId);	
-		if(accountHolder == null) { throw new NotFoundException("AccountHolder Not Found"); }
+		AccountHolder accountHolder = this.getAccountHolderById(customerId);
+		if(accountHolder == null) { throw new NotFoundException("Account Holder Not Found"); }
 		return accountHolder;
 	}
 	
@@ -94,8 +89,7 @@ public class AccountHolderController {
 	public CheckingAccount addCheckingAcc(@PathVariable long customerId, 
 			@RequestBody @Valid CheckingAccount checkingAccount) 
 			throws NotFoundException, NegativeAmountException, ExceedsCombinedBalanceLimitException	{
-//		AccountHolder accountHolder = this.getAccountHolderById(customerId);
-		AccountHolder accountHolder = accHolderRepository.findById(customerId);
+		AccountHolder accountHolder = this.getAccountHolderById(customerId);
 		if(checkingAccount.getBalance() < 0) { throw new NegativeAmountException("Balance can't be negative"); }
 		log.info(checkingAccount.toString());
 		if(accountHolder.getCombinedBalance() + checkingAccount.getBalance() > 250000) {
@@ -104,8 +98,7 @@ public class AccountHolderController {
 		}				
 		accountHolder.addCheckingAccount(checkingAccount); 
 		checkingAccountRepository.save(checkingAccount);
-		return checkingAccount;
-		
+		return checkingAccount;	
 	}
 	
 	@GetMapping(value = "/accountHolders/{customerId}/checkingAccounts")
@@ -113,7 +106,7 @@ public class AccountHolderController {
 	public CheckingAccount[] getAccHolderCheckingAccounts(@PathVariable long customerId) 
 			throws NotFoundException {
 			
-		AccountHolder accountHolder = this.getAccountHolderById(customerId); 
+		AccountHolder accountHolder = this.getAccountHolderById(customerId);
 		CheckingAccount[] checkingAccounts = accountHolder.getCheckingAccounts();
 		if(checkingAccounts.length <= 0) { throw new NotFoundException("Checking Accounts Not Found"); }
 		return checkingAccounts;
@@ -127,10 +120,11 @@ public class AccountHolderController {
 			
 		AccountHolder accountHolder = this.getAccountHolderById(customerId);
 		if(savingsAccount.getBalance() < 0) { throw new NegativeAmountException("Balance can't be negative"); }
-		if(accountHolder.getCombinedBalance() > 250000) {
+		if(accountHolder.getCombinedBalance() + savingsAccount.getBalance()> 250000) {
 			throw new ExceedsCombinedBalanceLimitException("Combined Balance can't be exceed $250K");
 		}
 		accountHolder.addSavingsAccount(savingsAccount);
+		savingsAccountRepository.save(savingsAccount);
 		return savingsAccount;
 	}
 	
@@ -139,7 +133,7 @@ public class AccountHolderController {
 	public SavingsAccount[] getAccHolderSavingsAccounts(@PathVariable long customerId) 
 			throws NotFoundException {
 			
-		AccountHolder accountHolder = this.getAccountHolderById(customerId); 
+		AccountHolder accountHolder = this.getAccountHolderById(customerId);
 		SavingsAccount[] savingsAccounts = accountHolder.getSavingsAccounts();
 		if(savingsAccounts.length <= 0) { throw new NotFoundException("Savings Accounts Not Found"); }
 		return savingsAccounts;
@@ -158,16 +152,38 @@ public class AccountHolderController {
 	
 	@PostMapping(value = "/accountHolders/{customerId}/cdAccounts")
 	@ResponseStatus(HttpStatus.CREATED)
-	public CDAccount addCDAccount(@PathVariable long customerId, 
-			@RequestBody @Valid CDAccount cdAccount) 
-			throws NotFoundException, ExceedsFraudSuspicionLimitException {
-			
-		AccountHolder accountHolder = this.getAccountHolderById(customerId);
-		int term = cdAccount.getCdOffering().getTerm();
-		double interestRate = cdAccount.getCdOffering().getInterestRate();
-		cdAccount.setTerm(term);
-		cdAccount.setInterestRate(interestRate);
+	public CDAccount addCDAcc(@PathVariable long customerId, 
+			@RequestBody CDAccount cdAccount) 
+			throws NotFoundException, NegativeAmountException, ExceedsCombinedBalanceLimitException,
+			ExceedsFraudSuspicionLimitException {
+//		cdAccountRepository.save(cdAccount); 
+		System.out.println("CD Account = " + cdAccount.toString());
+//		cdAccountRepository.save(cdAccount); 
+//		System.out.println("CD Account = " + cdAccountRepository.findAll().get(0).toString());
+		CDOffering cdOffering = cdOfferingRepository.findById(cdAccount.getCdOffering().getId());
+		if(cdOffering == null) { throw new NotFoundException("CD Offering Not Found"); }
+//		System.out.println("CD Offering = " + cdOffering.toString());
+		AccountHolder accountHolder = accHolderRepository.findById(customerId);
+//		cdAccountRepository.save(cdAccount); 
+		if(cdAccount.getBalance() < 0) { throw new NegativeAmountException("Balance can't be negative"); }
+//		if(accountHolder.getCombinedBalance() + cdAccount.getBalance()> 250000) {
+//			throw new ExceedsCombinedBalanceLimitException("Combined Balance can't be exceed $250K");
+//		}
+
+		
+		cdAccount.setTerm(cdOffering.getTerm());
+		cdAccount.setInterestRate(cdOffering.getInterestRate());
+		cdAccount.setCdOffering(cdOffering);
+		System.out.println("CD Account = " + cdAccount.toString());
+//		cdAccountRepository.save(cdAccount); //?
 		accountHolder.addCDAccount(cdAccount);
+		cdAccountRepository.save(cdAccount);
+//		
+//		int term = cdAccount.getCdOffering().getTerm();
+//		double interestRate = cdAccount.getCdOffering().getInterestRate();
+//		cdAccount.setTerm(term);
+//		cdAccount.setInterestRate(interestRate);
+//		accountHolder.addCDAccount(cdAccount);
 		return cdAccount;
 	}
 		

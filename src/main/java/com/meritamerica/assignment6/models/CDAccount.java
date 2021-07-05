@@ -5,7 +5,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Positive;
 
@@ -16,13 +20,18 @@ import javax.validation.constraints.Positive;
  * 
  */
 
-//@Entity
-//@Table(name = "cd_accounts")
+@Entity
+@Table(name = "cd_accounts")
 public class CDAccount extends BankAccount{
 	
+//	@Positive(message = "Term must be greater than 0")
 	private int term;
+//	private double interestRate;
 	
 //	------- Added in assignment 5 -------
+	
+	@ManyToOne//(cascade = CascadeType.MERGE, fetch=FetchType.LAZY)
+//	cascade = CascadeType.ALL, 
 	private CDOffering cdOffering;
 	
 	
@@ -134,7 +143,8 @@ public class CDAccount extends BankAccount{
 			+ "\nCD Account Interest Rate: " + String.format("%.4f", this.getInterestRate())
 			+ "\nCD Account Term: " + this.getTerm()
 			+ "\nCD Account Balance in " + this.getTerm() + " years: " + String.format("%.2f", this.futureValue(this.getTerm()))
-			+ "\nCD Account Opened Date " + this.getOpenedOn();
+			+ "\nCD Account Opened Date " + this.getOpenedOn() 
+			+ "\nCD Offering Details: \n" + this.getCdOffering().toString();
 	}
 	
 	@Override
@@ -142,7 +152,7 @@ public class CDAccount extends BankAccount{
 		return Long.toString(this.getAccountNumber()) + "," 
 				+ String.format("%.0f", this.getBalance()) + ","
 				+ String.format("%.3f", this.getInterestRate()) + ","
-				+ new SimpleDateFormat("MM/dd/yyyy").format(this.accountOpenedOn) + ","
+				+ new SimpleDateFormat("MM/dd/yyyy").format(this.openedOn) + ","
 				+ Integer.toString(this.term);
 	}
 }

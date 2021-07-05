@@ -32,7 +32,7 @@ import java.lang.Exception;
 @Table(name = "account_holders")
 public class AccountHolder implements Comparable<AccountHolder> {
 	
-	@Id  // primary key for DB
+	@Id  // primary key for DB has to be initialized
 	@GeneratedValue(strategy=GenerationType.AUTO) //Is generated automatically and can be omitted
 	private long id;
 	
@@ -47,32 +47,36 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	private String lastName;
 	
 //	@NotBlank
-	@OneToOne(cascade = CascadeType.ALL, mappedBy = "accountHolder")
-	private AccountHolderContactDetails accountHolderContactDetails;
-//	mappedBy designates the property/field in the entity that is the owner of the relationship.
-//	There no @JoinColumn annotation here. It's only needed on the owning side of the foreign key 
-//	relationship. Whoever owns the foreign key column gets the @JoinColumn annotation.
-
-	
+	@OneToOne(cascade = CascadeType.ALL) //, mappedBy = "accountHolder")
+	private AccountHolderContactDetails accountHolderContactDetails;	
+/* 
+ * mappedBy designates the property/field in the entity that is the owner of the relationship. 
+ * There no @JoinColumn annotation here. It's only needed on the owning side of the foreign key
+ * relationship. Whoever owns the foreign key column gets the @JoinColumn annotation.
+ */
+		
 	@NotBlank
-	private String ssn; //Social Security Number
+	private String ssn; 
 	private static final double MAX_COMBINED_BALANCE = 250000.00;
 	
-	@OneToMany(mappedBy="accountHolder", 
-			cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-//	targetEntity=CheckingAccount.class, 
-	@OrderColumn (name="chAcc_array_index")
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
+//	, mappedBy="accountHolder" - doesn't work
+//	,fetch=FetchType.EAGER - doesn't work
+//	,orphanRemoval = true, - doesn't work 
+	@OrderColumn 
 	private CheckingAccount[] checkingAccounts = new CheckingAccount[0]; 
 	
-	@OneToMany(mappedBy="accountHolder", 
-			cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-	@OrderColumn (name="svgAcc_array_index")
+	@OneToMany
+	(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
+//	(cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER, mappedBy="accountHolder")
+	@OrderColumn 
 	private SavingsAccount[] savingsAccounts = new SavingsAccount[0];
 	
-//	@OneToMany(mappedBy="accountHolder", 
-//			cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
-//	@OrderColumn (name="cdAcc_array_index")
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.LAZY)
+//	(mappedBy="accountHolder", cascade = CascadeType.ALL, orphanRemoval = true, fetch=FetchType.EAGER)
+	@OrderColumn 
 	private CDAccount[] cdAccounts = new CDAccount[0]; 
+	
 	private static final double MAX_TRANSACTION_AMOUNT = 1000;
 
 	/**
@@ -80,7 +84,6 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	 */
 	public AccountHolder() {
 		super();
-		this.accountHolderContactDetails = new AccountHolderContactDetails();
 //		this.id = nextId++;
 	}
 	
@@ -109,15 +112,9 @@ public class AccountHolder implements Comparable<AccountHolder> {
 		return accHolder;
 	}
 	
-	
-	
-	public long getId() {
-		return id;
-	}
+	public long getId() { return id; }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+	public void setId(long id) { this.id = id; }
 
 	/**
 	 * @return the firstName
@@ -139,9 +136,7 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @param middleName the middleName to set
 	 */
-	public void setMiddleName(String middleName) { 
-		this.middleName = middleName; 
-	}
+	public void setMiddleName(String middleName) { this.middleName = middleName; }
 
 	/**
 	 * @return the lastName
@@ -151,36 +146,23 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @param lastName the lastName to set
 	 */
-	public void setLastName(String lastName) { 
-		this.lastName = lastName; 
-	}
+	public void setLastName(String lastName) { this.lastName = lastName; }
 
 	/**
 	 * @return the ssn
 	 */
-	public String getSSN() { return ssn; }
+	public String getSsn() { return ssn; }
 
 	/**
 	 * @param ssn the ssn to set
 	 */
-	public void setSSN(String ssn) { 
-		this.ssn = ssn; 
-	}
+	public void setSsn(String ssn) { this.ssn = ssn; }
 	
-	public AccountHolderContactDetails getAccountHolderContactDetails() {
-		return accountHolderContactDetails;
-	}
+	public AccountHolderContactDetails getAccountHolderContactDetails() { return accountHolderContactDetails;}
 
 	public void setAccountHolderContactDetails(AccountHolderContactDetails accountHolderContactDetails) {
 		this.accountHolderContactDetails = accountHolderContactDetails;
 	}
-	
-//	public AccountHolderContactDetails addContactDetails(String email, String phoneNo, String address) {
-//		AccountHolderContactDetails contactDetails = new AccountHolderContactDetails(email, phoneNo, address);
-//		return contactDetails;
-//	}
-//	
-
 	
 	/**
 	 * @param openingBalance
@@ -225,6 +207,10 @@ public class AccountHolder implements Comparable<AccountHolder> {
 //	@JsonManagedReference
 	public CheckingAccount[] getCheckingAccounts() { return checkingAccounts; }
 	
+	public void setCheckingAccounts(CheckingAccount[] checkingAccounts) {
+		this.checkingAccounts = checkingAccounts;
+	}
+	
 	/**
 	 * @param openingBalance
 	 * @return the SavingsAccount
@@ -265,9 +251,9 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @return the SavingsAccount[]
 	 */
-	public SavingsAccount[] getSavingsAccounts() {
-		return savingsAccounts;
-	}
+	public SavingsAccount[] getSavingsAccounts() { return savingsAccounts; }
+	
+	public void setSavingsAccounts(SavingsAccount[] savingsAccounts) { this.savingsAccounts = savingsAccounts; }
 	
 	/**
 	 * @param openingBalance
@@ -305,9 +291,9 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @return the CDAccount[]
 	 */
-	public CDAccount[] getCDAccounts() {
-		return cdAccounts;
-	}
+	public CDAccount[] getCDAccounts() { return cdAccounts; }
+	
+	public void setCDAccounts(CDAccount[] cdAccounts) { this.cdAccounts = cdAccounts; }
 	
 	/**
 	 * @return the number of checking accounts
@@ -330,9 +316,7 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @return the number of savings accounts
 	 */
-	public int getNumberOfSavingsAccounts() {
-		return this.savingsAccounts.length;
-	}
+	public int getNumberOfSavingsAccounts() { return this.savingsAccounts.length; }
 	
 	/**
 	 * @return the combined balance of savings accounts
@@ -350,9 +334,7 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	/**
 	 * @return the number of cd accounts
 	 */
-	public int getNumberOfCDAccounts() {
-		return this.cdAccounts.length;
-	}
+	public int getNumberOfCDAccounts() { return this.cdAccounts.length; }
 	
 	/**
 	 * @return the combined balance of cd accounts
@@ -383,7 +365,8 @@ public class AccountHolder implements Comparable<AccountHolder> {
 	@Override
 	public String toString() {
 		return "Name: " +  this.getFirstName() + " " + this.getMiddleName() + " " + this.getLastName()
-				+ "\nSSN: " + this.getSSN(); 
+				+ "\nSSN: " + this.getSsn() + "\n"
+				+ this.getAccountHolderContactDetails(); 
 	}
 	
 	public String writeToString() {
@@ -391,13 +374,6 @@ public class AccountHolder implements Comparable<AccountHolder> {
 				+ this.getFirstName() + "," 
 				+ this.getMiddleName() + "," 
 				+ this.getLastName() + "," 
-				+ this.getSSN() + "," 
-				+ this.accountHolderContactDetails.getId() + "," 
-				+ this.accountHolderContactDetails.getStreet() + "," 
-				+ this.accountHolderContactDetails.getCity() + "," 
-				+ this.accountHolderContactDetails.getState() + "," 
-				+ this.accountHolderContactDetails.getZip() + "," 
-				+ this.accountHolderContactDetails.getEmail() + "," 
-				+ this.accountHolderContactDetails.getPhone();			
+				+ this.getSsn();	
 	}
 }

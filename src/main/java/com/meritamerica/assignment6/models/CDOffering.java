@@ -1,6 +1,11 @@
 package com.meritamerica.assignment6.models;
 
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
@@ -16,9 +21,12 @@ import org.hibernate.validator.constraints.Range;
  * 
  */
 
+@Entity
 public class CDOffering {
 	
-	static int nextId = 1;
+//	static int nextId = 1;
+	@Id 
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	int id;
 	
 //	@Positive(message = "Term must be positive")
@@ -34,14 +42,14 @@ public class CDOffering {
 	/**
 	 * Default constructor 
 	 */
-	public CDOffering(){ this.id = nextId++; }
+	public CDOffering() {}; // this.id = nextId++; }
 	
 	/**
 	 * @param term
 	 * @param interestRate
 	 */
 	public CDOffering(int term, double interestRate){
-		this.id = nextId++;
+//		this.id = nextId++;
 		this.term = term;
 		this.interestRate = interestRate;
 	}

@@ -39,9 +39,12 @@ public class AccountHolderContactDetails {
 //	@NotBlank @Digits(integer=10, fraction=0)
 	private String phone;
 	
-	@OneToOne
-	@JoinColumn(name = "account_holder_id", referencedColumnName = "id") 
-	private AccountHolder accountHolder;
+	private long accountHolderId;
+	
+
+//	@OneToOne
+//	@JoinColumn(name = "account_holder_id", referencedColumnName = "id") 
+//	private AccountHolder accountHolder;
 	//, nullable = false
 //	@JoinColumn is used to configure the name of the column in the 
 //	account_holder_contact_details table that maps to the primary key in the 
@@ -94,13 +97,27 @@ public class AccountHolderContactDetails {
 
 	public void setPhone(String phone) { this.phone = phone; }
 	
-	public AccountHolder getAccountHolder() { return accountHolder; }
+	public long getAccountHolderId() {
+		return accountHolderId;
+	}
+
+	public void setAccountHolderId(long accountHolderId) {
+		this.accountHolderId = accountHolderId;
+	}
 	
-	public void setAccountHolder(AccountHolder accountHolder) { this.accountHolder = accountHolder; }
+//	public AccountHolder getAccountHolder() { return accountHolder; }
+//	
+//	public void setAccountHolder(AccountHolder accountHolder) { this.accountHolder = accountHolder; }
 
 //	public AccountHolderContactDetails setAccountHolder(AccountHolder accountHolder) {
 //		this.accountHolder = accountHolder;
 //		return this;
 //	}
+	
+	public String toString() {
+		return  "Address: " + this.getStreet() + "," + this.getCity() + "," + this.getState() + "," + this.getZip() 
+				+ "\nEmail: " + this.getEmail() 
+				+ "\nPhone: " + this.getPhone();			
+	}
 	
 }

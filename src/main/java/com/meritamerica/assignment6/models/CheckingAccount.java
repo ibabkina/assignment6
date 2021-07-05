@@ -20,22 +20,19 @@ import javax.persistence.Table;
 @Table(name = "checking_accounts")
 public class CheckingAccount extends BankAccount {
 	
+	private static final double INTEREST_RATE = 0.0001;
 //	private double interestRate = 0.0001;
-	
-//	@ManyToOne(fetch = FetchType.LAZY)
-//	@JoinColumn(name="acc_holder_id")
-//	private AccountHolder accountHolder;
 	
 	/**
 	 * Default constructor 
 	 */
-	public CheckingAccount() { super(0, 0.0001); }
+	public CheckingAccount() { super(0, INTEREST_RATE); }
 	
 	/**
 	 * @param openingBalance
 	 */
 	public CheckingAccount(double openingBalance){
-		super(openingBalance, 0.0001);
+		super(openingBalance, INTEREST_RATE);
 	}
 	
 	/**
@@ -51,18 +48,10 @@ public class CheckingAccount extends BankAccount {
 	 * @param openingBalance
 	 * @param interestRate
 	 */
-	public CheckingAccount(long accNumber, double openingBalance, double interestRate, java.util.Date accountOpenedOn){
-		super(accNumber, openingBalance, interestRate, accountOpenedOn);
+	public CheckingAccount(long accNumber, double openingBalance, double interestRate, java.util.Date openedOn){
+		super(accNumber, openingBalance, interestRate, openedOn);
 	}
 	
-//	public AccountHolder getAccountHolder() {
-//		return accountHolder;
-//	}
-//
-//	public void setAccountHolder(AccountHolder accountHolder) {
-//		this.accountHolder = accountHolder;
-//	}
-
 	// Should throw a java.lang.NumberFormatException if String cannot be correctly parsed
 	public static CheckingAccount readFromString(String accountData) 
 			throws NumberFormatException, ParseException {
@@ -75,8 +64,9 @@ public class CheckingAccount extends BankAccount {
 //	/**
 //	 * @return the interestRate
 //	 */
-//	public double getInterestRate() { return this.interestRate; }
-//	
+//	public double getInterestRate() { return INTEREST_RATE; } //this.interestRate; }
+	
+	
 //	/**
 //	 * Calculates the future value of the account balance based on the interest 
 //	 * and number of years

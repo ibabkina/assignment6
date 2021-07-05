@@ -27,35 +27,32 @@ import org.hibernate.validator.constraints.Range;
  * 
  */
 
-//@Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+
 @MappedSuperclass
+//@Entity
+//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class BankAccount {
 	
-//	@Min(value = 0 , message = "Value should be greater than 0")
-	@Positive(message = "Value should be greater than 0")
+	@Positive(message = "Balance must be greater than 0")
 	protected double balance;
 	
 //	@Min(value = 0 , message = "Value should be greater or equal to 0")
+//	@Positive(message = "Interest Rate must be greater than 0")
 	protected double interestRate; 
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO) 
 	protected long accountNumber;
 	
-	protected Date accountOpenedOn; // java.util.Date 
+	protected Date openedOn; // java.util.Date 
 //	protected ArrayList<Transaction> transactions;
-	
-	@ManyToOne
-	@JoinColumn(name="acc_holder_id")
-	private AccountHolder accountHolder;
 
 	/**
 	 * Default constructor 
 	 */
 	public BankAccount() {
-		this.accountNumber = MeritBank.getNextAccountNumber();
-		this.accountOpenedOn = new Date();
+//		this.accountNumber = MeritBank.getNextAccountNumber();
+		this.openedOn = new Date();
 	}
 
 	/**
@@ -65,8 +62,8 @@ public class BankAccount {
 	public BankAccount(double balance, double interestRate) {
 		this.balance = balance;
 		this.interestRate = interestRate;
-		this.accountNumber = MeritBank.getNextAccountNumber();
-		this.accountOpenedOn = new Date();
+//		this.accountNumber = MeritBank.getNextAccountNumber();
+		this.openedOn = new Date();
 //		this.transactions = new ArrayList<Transaction>();
 	}
 	
@@ -78,8 +75,8 @@ public class BankAccount {
 	public BankAccount(double balance, double interestRate, Date accountOpenedOn) {
 		this.balance = balance;
 		this.interestRate = interestRate;
-		this.accountNumber = MeritBank.getNextAccountNumber();
-		this.accountOpenedOn = accountOpenedOn;	
+//		this.accountNumber = MeritBank.getNextAccountNumber();
+		this.openedOn = accountOpenedOn;	
 //		this.transactions = new ArrayList<Transaction>();
 	}
 	
@@ -92,7 +89,7 @@ public class BankAccount {
 		this.balance = balance;
 		this.interestRate = interestRate;
 		this.accountNumber = accountNumber;
-		this.accountOpenedOn = accountOpenedOn;
+		this.openedOn = accountOpenedOn;
 //		this.transactions = new ArrayList<Transaction>();
 	}
 	
@@ -104,22 +101,6 @@ public class BankAccount {
 		Double.parseDouble(args[2]), new SimpleDateFormat("MM/dd/yyyy").parse(args[3]));
 		System.out.println(acc.toString());
 		return acc;
-	}
-	
-//	public AccountHolder getAccountHolder() {
-//		return accountHolder;
-//	}
-//
-//	public void setAccountHolder(AccountHolder accountHolder) {
-//		this.accountHolder = accountHolder;
-//	}
-	
-	public Date getAccountOpenedOn() {
-		return accountOpenedOn;
-	}
-
-	public void setAccountOpenedOn(Date accountOpenedOn) {
-		this.accountOpenedOn = accountOpenedOn;
 	}
 
 	/**
@@ -135,12 +116,12 @@ public class BankAccount {
 	/**
 	 * @return the accountOpenedOn
 	 */
-	public Date getOpenedOn() { return accountOpenedOn; }
+	public Date getOpenedOn() { return openedOn; }
 	
 	/**
 	 * @param dateOpenedOn the dateOpenedOn to set
 	 */
-	public void setOpenedOn(Date accountOpenedOn) { this.accountOpenedOn = accountOpenedOn; }
+	public void setOpenedOn(Date accountOpenedOn) { this.openedOn = accountOpenedOn; }
 	
 	/**
 	 * @return the balance
@@ -240,6 +221,6 @@ public class BankAccount {
 		return Long.toString(this.getAccountNumber()) + "," 
 				+ String.format("%.0f", this.getBalance()) + ","
 				+ String.format("%.4f", this.getInterestRate()) + ","
-				+ new SimpleDateFormat("MM/dd/yyyy").format(this.accountOpenedOn);	
+				+ new SimpleDateFormat("MM/dd/yyyy").format(this.openedOn);	
 	}
 }	

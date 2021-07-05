@@ -18,18 +18,19 @@ import javax.persistence.Table;
 @Table(name = "savings_accounts")
 public class SavingsAccount extends BankAccount {
 	
-//	private double interestRate = 0.01;
+	private static final double INTEREST_RATE = 0.01;
+	//	private double interestRate = 0.01;
 	
 	/**
 	 * Default constructor 
 	 */
-	public SavingsAccount() { super(0, 0.01); }
+	public SavingsAccount() { super(0, INTEREST_RATE); }
 	
 	/**
 	 * @param openingBalance
 	 */
 	public SavingsAccount(double openingBalance) {
-		super(openingBalance, 0.01);
+		super(openingBalance, INTEREST_RATE);
 	}
 	
 	/**
@@ -61,8 +62,8 @@ public class SavingsAccount extends BankAccount {
 //	/**
 //	 * @return the interestRate
 //	 */
-//	public double getInterestRate() { return this.interestRate; }
-//	
+//	public double getInterestRate() { return INTEREST_RATE; }
+	
 //	/**
 //	 * Calculates the future value of the account balance based on the interest 
 //	 * and number of years
@@ -85,6 +86,6 @@ public class SavingsAccount extends BankAccount {
 		return Long.toString(this.getAccountNumber()) + "," 
 				+ String.format("%.0f", this.getBalance()) + ","
 				+ String.format("%.2f", this.getInterestRate()) + ","
-				+ new SimpleDateFormat("MM/dd/yyyy").format(this.accountOpenedOn);	
+				+ new SimpleDateFormat("MM/dd/yyyy").format(this.openedOn);	
 	}
 }
